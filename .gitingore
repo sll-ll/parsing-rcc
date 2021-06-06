@@ -1,0 +1,7 @@
+*.png
+*./log
+*.jpeg
+*.tif
+*.png
+*__pycache__*
+*.json
