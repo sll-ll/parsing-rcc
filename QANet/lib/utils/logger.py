@@ -392,23 +392,22 @@ def build_test_hooks(cfg_filename, log_period, num_warmup=4):
     return TestHook(cfg_filename, log_period, num_warmup)
 
 
-def write_metrics(metrics_dict, storage):
+def write_metrics(metrics_dict, storage, writer, iteration):
     metrics_dict = {
         k: v.detach().cpu().item() if isinstance(v, torch.Tensor) else float(v)
         for k, v in metrics_dict.items()
     }
     # gather metrics among all workers for logging
     all_metrics_dict = gather(metrics_dict)
-
     if is_main_process():
-        max_keys = ("data_time", "best_acc1")
+        max_keys = ("data_time", "best_acc1", "parsing_acc")
         for m_k in max_keys:
             if m_k in all_metrics_dict[0]:
                 # data_time among workers can have high variance. The actual latency
                 # caused by data_time is the maximum among workers.
                 m_v = np.max([x.pop(m_k) for x in all_metrics_dict])
                 storage.put_scalar(m_k, m_v)
-
+                writer.add_scalar(m_k, float(m_v), iteration)
         # average the rest metrics
         metrics_dict = {
             k: np.mean([x[k] for x in all_metrics_dict]) for k in all_metrics_dict[0].keys()
@@ -416,5 +415,9 @@ def write_metrics(metrics_dict, storage):
         total_losses_reduced = sum(v if 'loss' in k else 0 for k, v in metrics_dict.items())
 
         storage.put_scalar("total_loss", total_losses_reduced)
+        writer.add_scalar('total_loss', total_losses_reduced, iteration)
         if len(metrics_dict) >= 1:
             storage.put_scalars(**metrics_dict)
+
+        for k, v in metrics_dict.items():
+            writer.add_scalar(k, float(v), iteration)

@@ -141,7 +141,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='QANet Model Training')
     parser.add_argument('--cfg', dest='cfg_file',
                         help='optional config file',
-                        default='/home/workspace/QANet/cfgs/CIHP/QANet/QANet_H-W48_512x384_1x.yaml', type=str)
+                        default='/home/workspace/parsing-rcc/QANet/cfgs/CIHP/QANet/QANet_H-W48_512x384_1x.yaml', type=str)
     parser.add_argument('--local_rank', type=int, default=0)
     parser.add_argument('opts', help='See qanet/core/config.py for all options',
                         default=None,

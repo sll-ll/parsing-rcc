@@ -64,8 +64,9 @@ def train(cfg, model, sampler, train_loader, test_loader, test_set, test_engine,
 
                     metrics_dict = outputs['losses']
                     metrics_dict["data_time"] = data_time
+                    metrics_dict["parsing_acc"] = outputs['metrics']["parsing_acc"]
                     metrics_dict["best_acc1"] = scheduler.info['best_acc']
-                    write_metrics(metrics_dict, storage)
+                    write_metrics(metrics_dict, storage, writer, (epoch-1)*iter_per_epoch+iteration)
 
                     scaler.scale(losses).backward()
                     scaler.step(optimizer)
@@ -149,7 +150,7 @@ def main(args):
     cfg = infer_cfg(cfg)
     cfg.freeze()
     # logging_rank(cfg)
-    writer = SummaryWriter('./logs')  # 创建一个folder存储需要记录的数据
+    writer = SummaryWriter(cfg.TRAIN.LOGDIR)  # 创建一个folder存储需要记录的数据
 
     if not os.path.isdir(cfg.CKPT):
         mkdir_p(cfg.CKPT)

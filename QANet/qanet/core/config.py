@@ -196,6 +196,8 @@ _C.TRAIN = CN()
 # Initialize network with weights from this .pth file
 _C.TRAIN.WEIGHTS = ''
 
+_C.TRAIN.LOGDIR = './logs/'
+
 # Datasets to train on
 # If multiple datasets are listed, the model is trained on their union
 _C.TRAIN.DATASETS = ()
